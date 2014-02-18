@@ -1,0 +1,282 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Desarrollo de Aplicaciones con Java &mdash; Desarrollo con Java</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/translations.js"></script>
+    <link rel="top" title="Desarrollo con Java" href="#" />
+    <link rel="next" title="1. Uso de JSP" href="tutorial1.md.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navegación</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="tutorial1.md.html" title="1. Uso de JSP"
+             accesskey="N">siguiente</a></li>
+        <li><a href="#">Desarrollo con Java</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="desarrollo-de-aplicaciones-con-java">
+<h1>Desarrollo de Aplicaciones con Java<a class="headerlink" href="#desarrollo-de-aplicaciones-con-java" title="Enlazar permanentemente con este título">¶</a></h1>
+<p>El objetivo de este sitio es presentar una serie de tutoriales básicos sobre el desarrollo de aplicaciones empresariales utilizando el ambiente Java.</p>
+<p>Los tutoriales disponibles hasta el momento son los siguientes:</p>
+</div>
+<div class="section" id="contenidos">
+<h1>Contenidos<a class="headerlink" href="#contenidos" title="Enlazar permanentemente con este título">¶</a></h1>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="tutorial1.md.html">1. Uso de JSP</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="tutorial1.md.html#creacion-de-la-base-de-datos">1.1. Creación de la base de datos</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial1.md.html#pagina-de-listado-de-profesores">1.2. Página de listado de profesores</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial1.md.html#detalle-del-profesor">1.3. Detalle del profesor</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial1.md.html#hoja-de-estilo">1.4. Hoja de estilo</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial1.md.html#ambiente-de-ejecucion">1.5. Ambiente de ejecución</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tutorial1.md.html#estructura-de-directorios">1.5.1. Estructura de directorios</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial1.md.html#ejecucion-del-ejemplo">1.6. Ejecución del ejemplo</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial2.md.html">2. Rutinas de Transacción</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="tutorial2.md.html#capa-de-acceso-a-datos">2.1. Capa de acceso a datos</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tutorial2.md.html#base-de-datos">2.1.1. Base de datos</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tutorial2.md.html#pasarela-a-fila-de-datos">2.1.2. Pasarela a fila de datos</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tutorial2.md.html#generacion-de-objetos-de-pasarelas">2.1.3. Generación de objetos de pasarelas</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tutorial2.md.html#compilando-la-capa-de-datos">2.1.4. Compilando la capa de datos</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial2.md.html#capa-de-presentacion">2.2. Capa de presentación</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tutorial2.md.html#la-clase-para-los-comandos">2.2.1. La clase para los comandos</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tutorial2.md.html#comandos-desconocidos">2.2.2. Comandos desconocidos</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tutorial2.md.html#compilando-la-capa-de-presentacion">2.2.3. Compilando la capa de presentación</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial2.md.html#la-capa-de-logica-del-dominio">2.3. La capa de lógica del dominio</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tutorial2.md.html#la-rutina-de-listado">2.3.1. La rutina de listado</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="tutorial2.md.html#plantilla-jsp">2.3.1.1. Plantilla JSP</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tutorial2.md.html#hoja-de-estilo">2.3.1.2. Hoja de estilo</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="tutorial2.md.html#la-rutina-de-detalle">2.3.2. La rutina de detalle</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="tutorial2.md.html#id1">2.3.2.1. Plantilla JSP</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="tutorial2.md.html#actualizar-informacion">2.3.3. Actualizar información</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tutorial2.md.html#compilando-la-capa-de-dominio">2.3.4. Compilando la capa de dominio</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial2.md.html#configuracion-del-contexto">2.4. Configuración del contexto</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial2.md.html#configuracion-del-servidor">2.5. Configuración del servidor</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial2.md.html#ejecucion-del-tutorial">2.6. Ejecución del tutorial</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial3.md.html">3. Módulo de Tabla</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="tutorial3.md.html#capa-de-acceso-a-datos">3.1. Capa de acceso a datos</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tutorial3.md.html#base-de-datos">3.1.1. Base de datos</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tutorial3.md.html#pasarela-a-tabla-de-datos">3.1.2. Pasarela a tabla de datos</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tutorial3.md.html#compilando-la-capa-de-datos">3.1.3. Compilando la capa de datos</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial3.md.html#la-capa-de-logica-del-dominio">3.2. La capa de lógica del dominio</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tutorial3.md.html#compilando-la-capa-de-dominio">3.2.1. Compilando la capa de dominio</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial3.md.html#capa-de-presentacion">3.3. Capa de presentación</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tutorial3.md.html#el-controlador-de-listado-de-profesores">3.3.1. El controlador de listado de profesores</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="tutorial3.md.html#la-plantilla-jsp">3.3.1.1. La plantilla JSP</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tutorial3.md.html#hoja-de-estilo">3.3.1.2. Hoja de estilo</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="tutorial3.md.html#el-controlador-de-detalle-de-profesor">3.3.2. El controlador de detalle de profesor</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="tutorial3.md.html#plantilla-jsp">3.3.2.1. Plantilla JSP</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="tutorial3.md.html#el-controlador-para-actualizar-informacion">3.3.3. El controlador para actualizar información</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tutorial3.md.html#compilando-la-capa-de-presentacion">3.3.4. Compilando la capa de presentación</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial3.md.html#configuracion-del-contexto">3.4. Configuración del contexto</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial3.md.html#configuracion-del-servidor">3.5. Configuración del servidor</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial3.md.html#ejecucion-del-tutorial">3.6. Ejecución del tutorial</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial4.md.html">4. Modelo del Dominio</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="tutorial4.md.html#la-capa-de-logica-del-dominio">4.1. La capa de lógica del dominio</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tutorial4.md.html#el-repositorio-de-datos">4.1.1. El repositorio de datos</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tutorial4.md.html#la-fabrica-de-objetos">4.1.2. La fábrica de objetos</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tutorial4.md.html#compilando-la-capa-del-dominio">4.1.3. Compilando la capa del dominio</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial4.md.html#capa-de-presentacion">4.2. Capa de presentación</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tutorial4.md.html#el-controlador-de-listado-de-profesores">4.2.1. El controlador de listado de profesores</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="tutorial4.md.html#la-plantilla-jsp">4.2.1.1. La plantilla JSP</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tutorial4.md.html#hoja-de-estilo">4.2.1.2. Hoja de estilo</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="tutorial4.md.html#el-controlador-de-detalle-de-profesor">4.2.2. El controlador de detalle de profesor</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="tutorial4.md.html#plantilla-jsp">4.2.2.1. Plantilla JSP</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="tutorial4.md.html#el-controlador-para-actualizar-informacion">4.2.3. El controlador para actualizar información</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tutorial4.md.html#el-dto-de-profesor">4.2.4. El DTO de profesor</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="tutorial4.md.html#el-ensamblador-del-dto">4.2.4.1. El ensamblador del DTO</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="tutorial4.md.html#compilando-la-capa-de-presentacion">4.2.5. Compilando la capa de presentación</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial4.md.html#configuracion-del-contexto">4.3. Configuración del contexto</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial4.md.html#configuracion-del-servidor">4.4. Configuración del servidor</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial4.md.html#ejecucion-del-tutorial">5. Ejecución del tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial5.md.html">6. Mapeo objeto/relacional</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="tutorial5.md.html#capa-de-logica-del-dominio">6.1. Capa de lógica del dominio</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tutorial5.md.html#el-repositorio-de-datos">6.1.1. El repositorio de datos</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tutorial5.md.html#la-fabrica-de-objetos">6.1.2. La fábrica de objetos</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tutorial5.md.html#compilando-la-capa-del-dominio">6.1.3. Compilando la capa del dominio</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial5.md.html#capa-de-presentacion">6.2. Capa de presentación</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tutorial5.md.html#el-controlador-de-listado-de-profesores">6.2.1. El controlador de listado de profesores</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="tutorial5.md.html#la-plantilla-jsp">6.2.1.1. La plantilla JSP</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tutorial5.md.html#hoja-de-estilo">6.2.1.2. Hoja de estilo</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="tutorial5.md.html#el-controlador-de-detalle-de-profesor">6.2.2. El controlador de detalle de profesor</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="tutorial5.md.html#plantilla-jsp">6.2.2.1. Plantilla JSP</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="tutorial5.md.html#el-controlador-para-actualizar-informacion">6.2.3. El controlador para actualizar información</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="tutorial5.md.html#plantilla-jsp-de-mensaje-de-error">6.2.3.1. Plantilla JSP de mensaje de error</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="tutorial5.md.html#el-dto-de-profesor">6.2.4. El DTO de profesor</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="tutorial5.md.html#el-ensamblador-del-dto">6.2.4.1. El ensamblador del DTO</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="tutorial5.md.html#compilando-la-capa-de-presentacion">6.2.5. Compilando la capa de presentación</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial5.md.html#capa-de-acceso-a-datos">6.3. Capa de acceso a datos</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tutorial5.md.html#el-dao-de-profesor">6.3.1. El DAO de profesor</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="tutorial5.md.html#repositorio-basado-en-dao">6.3.1.1. Repositorio basado en DAO</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="tutorial5.md.html#base-de-datos">6.3.2. Base de datos</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tutorial5.md.html#compilando-la-capa-de-datos">6.3.3. Compilando la capa de datos</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tutorial5.md.html#dialecto-sqlite">6.3.4. Dialecto SQLite</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tutorial5.md.html#compilando-el-dialecto">6.3.5. Compilando el dialecto</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial5.md.html#configuracion-de-la-aplicacion">6.4. Configuración de la aplicación</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tutorial5.md.html#archivo-de-contexto">6.4.1. Archivo de contexto</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tutorial5.md.html#archivo-de-configuracion-de-hibernate">6.4.2. Archivo de configuración de Hibernate</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="tutorial5.md.html#metadatos-para-la-clase-profesor">6.4.2.1. Metadatos para la clase Profesor</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="tutorial5.md.html#el-archivo-de-configuracion-de-servlets">6.4.3. El archivo de configuración de servlets</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tutorial5.md.html#ejecucion-del-tutorial">6.4.4. Ejecución del Tutorial</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial6.md.html">7. Uso de JSTL</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="tutorial6.md.html#creacion-de-la-base-de-datos">7.1. Creación de la base de datos</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial6.md.html#pagina-de-listado-de-profesores">7.2. Página de listado de profesores</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial6.md.html#detalle-del-profesor">7.3. Detalle del profesor</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial6.md.html#hoja-de-estilo">7.4. Hoja de estilo</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial6.md.html#ambiente-de-ejecucion">7.5. Ambiente de ejecución</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tutorial6.md.html#estructura-de-directorios">7.5.1. Estructura de directorios</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial6.md.html#ejecucion-del-ejemplo">7.6. Ejecución del ejemplo</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial7.md.html">8. Modelo/Vista/Controlador</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="tutorial7.md.html#capa-del-dominio">8.1. Capa del dominio</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial7.md.html#capa-de-servicio">8.2. Capa de servicio</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial7.md.html#el-controlador">8.3. El controlador</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial7.md.html#la-vista">8.4. La vista</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial7.md.html#configuracion">8.5. Configuración</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial7.md.html#compilacion-y-ejecucion">8.6. Compilación y ejecución</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="#">Tabla de Contenidos</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Desarrollo de Aplicaciones con Java</a></li>
+<li><a class="reference internal" href="#contenidos">Contenidos</a></li>
+</ul>
+
+  <h4>Próximo tema</h4>
+  <p class="topless"><a href="tutorial1.md.html"
+                        title="próximo capítulo">1. Uso de JSP</a></p>
+<div id="searchbox" style="display: none">
+  <h3>Búsqueda rápida</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Ir a" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Introduzca los términos de búsqueda o un nombre de módulo, clase o función.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navegación</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="tutorial1.md.html" title="1. Uso de JSP"
+             >siguiente</a></li>
+        <li><a href="#">Desarrollo con Java</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2014, Armando Arce.
+      Creado con <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.1.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,951 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>2. Rutinas de Transacción &mdash; Desarrollo con Java</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/translations.js"></script>
+    <link rel="top" title="Desarrollo con Java" href="index.html" />
+    <link rel="next" title="3. Módulo de Tabla" href="tutorial3.md.html" />
+    <link rel="prev" title="1. Uso de JSP" href="tutorial1.md.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navegación</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="tutorial3.md.html" title="3. Módulo de Tabla"
+             accesskey="N">siguiente</a></li>
+        <li class="right" >
+          <a href="tutorial1.md.html" title="1. Uso de JSP"
+             accesskey="P">anterior</a> |</li>
+        <li><a href="index.html">Desarrollo con Java</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="rutinas-de-transaccion">
+<h1>2. Rutinas de Transacción<a class="headerlink" href="#rutinas-de-transaccion" title="Enlazar permanentemente con este título">¶</a></h1>
+<p>A continuación se presenta un ejemplo sencillo de la aplicación Web del
+Sistema Universitario, lo que servirá para mostrar el uso de diferentes
+capas y de cómo se debe estructurar una aplicación para obtener el mayor
+provecho de las aplicaciones empresariales.</p>
+<p>En este ejemplo se combinarán tres patrones descritos por Fowler:
+<em>rutinas de transacción</em> para la lógica del dominio, <em>pasarela a fila de
+datos</em> para la capa de acceso a los datos, y <em>controlador frontal</em> para
+la capa de presentación. Más específicamente, las <em>rutinas de
+transacción</em> se estructurarán utilizando el patrón <em>comando</em>.</p>
+<div class="section" id="capa-de-acceso-a-datos">
+<h2>2.1. Capa de acceso a datos<a class="headerlink" href="#capa-de-acceso-a-datos" title="Enlazar permanentemente con este título">¶</a></h2>
+<p>La capa de acceso a datos utilizará una <em>pasarela a filas de datos</em> que
+se conectará a una base de datos <em>SQLite</em>. Este tipo de técnica también
+requiere crear una clase que se encargue de crear la pasarela, llamada
+un &#8220;finder&#8221;.</p>
+<div class="section" id="base-de-datos">
+<h3>2.1.1. Base de datos<a class="headerlink" href="#base-de-datos" title="Enlazar permanentemente con este título">¶</a></h3>
+<p>Se utilizará una base de datos SQLite para administrar los datos. Dicha
+base de datos debe llevar por nombre <em>universidad.db</em> y debe estar
+ubicada en el directorio <em>/tutorial2/database/</em>. El código SQL utilizado
+para generar la tabla de profesores sería el siguiente:</p>
+<div class="highlight-python"><div class="highlight"><pre>CREATE TABLE profesor (id INTEGER PRIMARY KEY, cedula VARCHAR,
+  nombre VARCHAR, titulo VARCHAR, area VARCHAR, telefono VARCHAR);
+INSERT INTO profesor VALUES(1,&#39;101110111&#39;,&#39;Carlos Perez&#39;,&#39;Licenciado&#39;,
+  &#39;Administracion&#39;,&#39;3456-7890&#39;);
+INSERT INTO profesor VALUES(2,&#39;202220222&#39;,&#39;Luis Torres&#39;,&#39;Master&#39;,
+  &#39;Economia&#39;,&#39;6677-3456&#39;);
+INSERT INTO profesor VALUES(3,&#39;303330333&#39;,&#39;Juan Castro&#39;,&#39;Licenciado&#39;,
+  &#39;Matematica&#39;,&#39;6755-7788&#39;);
+</pre></div>
+</div>
+<p>Para administrar una base de datos SQLite se puede utilizar alguno de
+los excelentes productos creados para ello, tal como <em>SQLiteman</em> ó el
+plugin para Firefox llamado <em>SQLite Manager</em></p>
+</div>
+<div class="section" id="pasarela-a-fila-de-datos">
+<h3>2.1.2. Pasarela a fila de datos<a class="headerlink" href="#pasarela-a-fila-de-datos" title="Enlazar permanentemente con este título">¶</a></h3>
+<p>Para implementar la capa de acceso de datos se utiliza una <em>pasarela a
+filas de datos</em>. Para ello es necesario crear una clase que permita
+acceder a la información de la base de datos cuyo nombre es
+<em>ProfesorRowGateway.java</em>. Dicha clase residirá en el directorio
+<em>/tutorial2/src/data/</em></p>
+<div class="highlight-python"><div class="highlight"><pre>package data;
+
+import java.util.*;
+import java.sql.*;
+import javax.sql.*;
+import org.springframework.jdbc.core.JdbcTemplate;
+
+public class ProfesorRowGateway {
+
+  private int id;
+  private String cedula;
+  private String nombre;
+  private String titulo;
+  private String area;
+  private String telefono;
+  private JdbcTemplate jdbcTemplate;
+  private DataSource dataSource;
+
+  ProfesorRowGateway() {};
+
+  ProfesorRowGateway(int id, String ced, String nomb,
+                                String tit, String area, String tel) {
+        this.id=id; this.cedula=ced; this.nombre=nomb;
+        this.titulo=tit;this.area=area;this.telefono=tel;
+  }
+
+  public void setId(int id) {this.id = id;}
+  public int getId() {return id;}
+
+  public void setCedula(String ced) {this.cedula=ced;}
+  public String getCedula() {return cedula;}
+
+  public void setNombre(String nomb) {this.nombre=nomb;}
+  public String getNombre() {return nombre;}
+
+  public void setTitulo(String tit) {this.titulo=tit;}
+  public String getTitulo() {return titulo;}
+
+  public void setArea(String area) {this.area=area;}
+  public String getArea() {return area;}
+
+  public void setTelefono(String tel) {this.telefono=tel;}
+  public String getTelefono() {return telefono;}
+
+  public void setDataSource(DataSource dataSource) {
+        this.dataSource = dataSource;
+  }
+
+  private void createJdbcTemplate() {
+        jdbcTemplate = new JdbcTemplate(dataSource);
+  }
+
+  private static final String insertStatement =
+        &quot;INSERT INTO profesor &quot;+
+        &quot;VALUES (?,?,?,?,?,?)&quot;;
+
+  public int insert() {
+        Random generator = new Random();
+        int id = generator.nextInt();
+        if (jdbcTemplate==null) createJdbcTemplate();
+          jdbcTemplate.update(insertStatement,
+                 id,cedula,nombre,titulo,area,telefono);
+        return id;
+  }
+
+  private static final String updateStatement =
+        &quot;UPDATE profesor &quot;+
+        &quot;SET cedula = ?, nombre = ?, titulo = ?, &quot;+
+        &quot;area = ?, telefono = ? WHERE id = ?&quot;;
+
+  public void update() {
+        if (jdbcTemplate==null) createJdbcTemplate();
+          jdbcTemplate.update(updateStatement,
+                  cedula,nombre,titulo,area,telefono,id);
+  }
+
+  private static final String deleteStatement =
+        &quot;DELETE FROM profesor &quot;+
+        &quot;WHERE id = ?&quot;;
+
+  public void delete() {
+        if (jdbcTemplate==null) createJdbcTemplate();
+          jdbcTemplate.update(deleteStatement,id);
+  }
+
+  public static ProfesorRowGateway load(DataSource ds, Map map) {
+        ProfesorRowGateway prof=null;
+        if (map==null)
+          prof = new ProfesorRowGateway();
+        else {
+          int id = ((Integer)map.get(&quot;id&quot;)).intValue();
+          String cedula = (String)map.get(&quot;cedula&quot;);
+          String nombre = (String)map.get(&quot;nombre&quot;);
+          String titulo = (String)map.get(&quot;titulo&quot;);
+          String area = (String)map.get(&quot;area&quot;);
+          String telefono = (String)map.get(&quot;telefono&quot;);
+          prof = new ProfesorRowGateway(id,cedula,nombre,titulo,area,telefono);
+        }
+        prof.setDataSource(ds);
+        return prof;
+  }
+}
+</pre></div>
+</div>
+</div>
+<div class="section" id="generacion-de-objetos-de-pasarelas">
+<h3>2.1.3. Generación de objetos de pasarelas<a class="headerlink" href="#generacion-de-objetos-de-pasarelas" title="Enlazar permanentemente con este título">¶</a></h3>
+<p>Para manejar este tipo de técnica es necesario contar con otra clase
+encargada de crear las pasarelas. Esta nueva clase se define en el
+archivo <em>ProfesorFinder.java</em> y reside en el mismo directorio
+<em>/tutorial2/src/data/</em></p>
+<div class="highlight-python"><div class="highlight"><pre>package data;
+
+import java.util.*;
+import java.sql.*;
+import javax.sql.*;
+import org.springframework.jdbc.core.JdbcTemplate;
+
+public class ProfesorFinder {
+
+  private JdbcTemplate jdbcTemplate;
+  private DataSource dataSource;
+
+  public void setDataSource(DataSource dataSource) {
+        this.dataSource = dataSource;
+        this.jdbcTemplate = new JdbcTemplate(dataSource);
+  }
+
+  public ProfesorRowGateway create() {
+        return ProfesorRowGateway.load(dataSource,null);
+  }
+
+  private final static String findStatement =
+         &quot;SELECT * &quot;+
+         &quot;FROM profesor &quot;+
+         &quot;WHERE id = ?&quot;;
+
+  public ProfesorRowGateway find(String id) {
+        List profs =
+          jdbcTemplate.queryForList(findStatement,id);
+        ProfesorRowGateway prof =
+          ProfesorRowGateway.load(dataSource,(Map)profs.get(0));
+        return prof;
+  }
+
+  private final static String findAllStatement =
+         &quot;SELECT * &quot;+
+         &quot;FROM profesor &quot;;
+
+  public List&lt;ProfesorRowGateway&gt; findAll() {
+        List result = new ArrayList();
+        List profs = jdbcTemplate.queryForList(findAllStatement);
+        for (int i=0; i&lt;profs.size();i++)
+          result.add(ProfesorRowGateway.load(dataSource,(Map)profs.get(i)));
+        return result;
+  }
+}
+</pre></div>
+</div>
+</div>
+<div class="section" id="compilando-la-capa-de-datos">
+<h3>2.1.4. Compilando la capa de datos<a class="headerlink" href="#compilando-la-capa-de-datos" title="Enlazar permanentemente con este título">¶</a></h3>
+<p>Se puede realizar la compilación de estas dos clases en forma separada
+del resto del código. Para ello es necesario contar con el framework
+<em>Spring 3</em> el cual se debe descargar y copiar todas las librerías <em>.jar</em>
+del directorio <em>lib</em> de dicho framework hacia el directorio
+<em>/tutorial2/root/WEB-INF/lib/</em>. También es necesario contar en dicho
+directorio con el driver jdbc para <em>SQLite</em> y las librerías <em>commons</em>
+para manejo de conexiones a base de datos.</p>
+<p>Específicamente las librerías que deben residir en el directorio
+<em>/tutorial2/root/WEB-INF/lib/</em> son las siguientes:</p>
+<ul class="simple">
+<li>commons-dbcp-1.4.jar</li>
+<li>commons-logging-1.1.1.jar</li>
+<li>commons-pool-1.6.jar</li>
+<li>servlet-api.jar</li>
+<li>spring-asm-3.2.0.M1.jar</li>
+<li>spring-beans-3.2.0.M1.jar</li>
+<li>spring-context-3.2.0.M1.jar</li>
+<li>spring-core-3.2.0.M1.jar</li>
+<li>spring-expression-3.2.0.M1.jar</li>
+<li>spring-jdbc-3.2.0.M1.jar</li>
+<li>spring-tx.3.2.0.M1.jar</li>
+<li>spring-web-3.2.0.M1.jar</li>
+<li>sqlite-jdbc-3.5.9.jar</li>
+</ul>
+<p>La siguiente instrucción para ejecutar la compilación puede estar
+definida en un archivo <em>compileDataLayer.bat</em> residente en el directorio
+<em>/tutorial2</em> (todo en una sola línea):</p>
+<div class="highlight-python"><div class="highlight"><pre>javac -cp &quot;root/WEB-INF/lib/*&quot; -d root/WEB-INF/classes
+    src/data/ProfesorRowGateway.java src/data/ProfesorFinder.java
+</pre></div>
+</div>
+<p>Nota: La versión del JDK debe ser superior a 6.0</p>
+</div>
+</div>
+<div class="section" id="capa-de-presentacion">
+<h2>2.2. Capa de presentación<a class="headerlink" href="#capa-de-presentacion" title="Enlazar permanentemente con este título">¶</a></h2>
+<p>El servicio de la universidad ha sido implementado como un <em>controlador
+frontal</em>, en donde cada rutina de transacción será implementada como un
+<em>comando</em>. El archivo del servicio se llamará <em>FrontController.java</em> y
+debe residir en el directorio <em>/tutorial2/src/display/</em></p>
+<div class="highlight-python"><div class="highlight"><pre>package display;
+
+import java.io.*;
+import java.util.*;
+import javax.servlet.*;
+import javax.servlet.http.*;
+
+import org.springframework.web.context.*;
+import org.springframework.web.context.support.*;
+
+public class FrontController extends HttpServlet {
+
+  private WebApplicationContext context;
+
+  public void init(ServletConfig config) throws ServletException {
+        super.init(config);
+        context =
+          WebApplicationContextUtils.getWebApplicationContext(getServletContext());
+  }
+
+  public void doGet(HttpServletRequest request,
+                                  HttpServletResponse response)
+        throws ServletException,IOException {
+        FrontCommand command =
+           getCommand((String)request.getAttribute(&quot;command&quot;));
+        command.init(context,request,response);
+        command.process();
+  }
+
+  private FrontCommand getCommand(String commandName) {
+        try {
+          return (FrontCommand) getCommandClass(commandName).newInstance();
+        } catch (Exception e) {
+          e.printStackTrace();
+        }
+        return null;
+  }
+
+  private Class getCommandClass(String commandName) {
+        Class result;
+        try {
+          result = Class.forName(commandName);
+        } catch (ClassNotFoundException e) {
+          result = UnknownCommand.class;
+        }
+        return result;
+  }
+}
+</pre></div>
+</div>
+<div class="section" id="la-clase-para-los-comandos">
+<h3>2.2.1. La clase para los comandos<a class="headerlink" href="#la-clase-para-los-comandos" title="Enlazar permanentemente con este título">¶</a></h3>
+<p>Como se indicó antes, cada transacción se implementa como un comando
+independiente de todos los demás. Existe una clase abstracta
+<em>FrontCommand.java</em> que permite definir los métodos comunes a cualquier
+comando. Este archivo también se ubica en el directorio
+<em>/tutorial2/src/display/</em></p>
+<div class="highlight-python"><div class="highlight"><pre>package display;
+import java.util.*;
+
+import java.io.*;
+import javax.servlet.*;
+import javax.servlet.http.*;
+import org.springframework.web.context.*;
+
+public abstract class FrontCommand {
+
+  public WebApplicationContext context;
+  public HttpServletRequest request;
+  public HttpServletResponse response;
+
+  public void init(WebApplicationContext ctx,
+                                   HttpServletRequest req,
+                                   HttpServletResponse resp) {
+        this.context = ctx;
+        this.request = req;
+        this.response = resp;
+  }
+
+  protected void forward(String target)
+        throws ServletException, IOException {
+        RequestDispatcher dispatcher =
+          context.getServletContext().getRequestDispatcher(target);
+        dispatcher.forward(request,response);
+  }
+
+  public abstract void process()
+        throws ServletException, IOException;
+
+}
+</pre></div>
+</div>
+</div>
+<div class="section" id="comandos-desconocidos">
+<h3>2.2.2. Comandos desconocidos<a class="headerlink" href="#comandos-desconocidos" title="Enlazar permanentemente con este título">¶</a></h3>
+<p>Cuando se pretende ejecutar un comando desconocido es necesario
+interceptar dicha solicitud e imprimir un mensaje de advertencia. La
+clase <em>UnknownCommand.java</em> se encarga de esta tarea y reside en el
+mismo directorio <em>/tutorial2/src/display/</em></p>
+<div class="highlight-python"><div class="highlight"><pre>package display;
+import java.io.*;
+import javax.servlet.*;
+
+public class UnknownCommand extends FrontCommand {
+
+  public void process()
+        throws ServletException, IOException {
+        forward(&quot;/unknown.jsp&quot;);
+  }
+}
+</pre></div>
+</div>
+<p>También es necesario contar con una pequeña plantilla <em>JSP</em> que permite
+generar el mensaje que se presentará en pantalla. El código de esta
+plantilla se ubica en el archivo <em>unknown.jsp</em> que reside en el
+directorio <em>/tutorial2/root/</em></p>
+<div class="highlight-python"><div class="highlight"><pre>&lt;html&gt;
+  &lt;head&gt;
+        &lt;title&gt;Sistema Universitario&lt;/title&gt;
+  &lt;/head&gt;
+  &lt;h1&gt;Operación inválida&lt;/h1&gt;
+&lt;/html&gt;
+</pre></div>
+</div>
+</div>
+<div class="section" id="compilando-la-capa-de-presentacion">
+<h3>2.2.3. Compilando la capa de presentación<a class="headerlink" href="#compilando-la-capa-de-presentacion" title="Enlazar permanentemente con este título">¶</a></h3>
+<p>También, se puede realizar la compilación de estas clases de
+presentación en forma separada del resto del código de la aplicación.
+Para ello es necesario contar con las librerías del framework <em>Spring 3</em>
+(como se indicó antes) y con la librería <em>servlet-api.jar</em> ubicadas en
+el directorio <em>/tutorial2/root/WEB-INF/lib/</em>. La siguiente instrucción
+para ejecutar la compilación puede estar definida en un archivo
+<em>compileDisplayLayer.bat</em> residente en el directorio <em>/tutorial2/</em> (todo
+en una sola línea):</p>
+<div class="highlight-python"><div class="highlight"><pre>javac -cp &quot;root/WEB-INF/lib/*&quot; -d root/WEB-INF/classes
+    src/display/FrontController.java src/display/FrontCommand.java
+    src/display/UnknownCommand.java
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="la-capa-de-logica-del-dominio">
+<h2>2.3. La capa de lógica del dominio<a class="headerlink" href="#la-capa-de-logica-del-dominio" title="Enlazar permanentemente con este título">¶</a></h2>
+<p>Para implementar la capa de lógica del dominio se utilizará la técnica
+de <em>rutinas de transacción</em>. En dicho caso cada rutina es responsable de
+recuperar los parámetros de la consulta, acceder a la tabla de datos,
+procesar los datos, e invocar a la rutina de presentación.</p>
+<div class="section" id="la-rutina-de-listado">
+<h3>2.3.1. La rutina de listado<a class="headerlink" href="#la-rutina-de-listado" title="Enlazar permanentemente con este título">¶</a></h3>
+<p>Para presentar el listado de profesores se crea la clase
+<em>ListaProfesores.java</em> en el directorio <em>/tutorial2/src/domain/</em></p>
+<div class="highlight-python"><div class="highlight"><pre>package domain;
+
+import display.FrontCommand;
+import data.ProfesorRowGateway;
+import data.ProfesorFinder;
+
+import java.util.Map;
+import java.util.HashMap;
+import java.util.List;
+import java.util.ArrayList;
+import java.io.IOException;
+import java.sql.SQLException;
+import javax.servlet.ServletException;
+
+public class ListaProfesores extends FrontCommand {
+
+  public void process()
+        throws ServletException, IOException {
+          ProfesorFinder profs =
+            (ProfesorFinder) context.getBean(&quot;profesorFinder&quot;);
+        List&lt;ProfesorRowGateway&gt; data = profs.findAll();
+        List param = new ArrayList();
+        for (int i=0;i&lt;data.size();i++) {
+          ProfesorRowGateway prof = data.get(i);
+          Map item = new HashMap();
+          item.put(&quot;id&quot;,prof.getId()+&quot;&quot;);
+          item.put(&quot;cedula&quot;,prof.getCedula());
+          item.put(&quot;nombre&quot;,prof.getNombre());
+          item.put(&quot;titulo&quot;,prof.getTitulo());
+          item.put(&quot;area&quot;,prof.getArea());
+          item.put(&quot;telefono&quot;,prof.getTelefono());
+          param.add(item);
+        }
+        request.setAttribute(&quot;profesores&quot;,param);
+        forward(&quot;/listaProfesores.jsp&quot;);
+  }
+}
+</pre></div>
+</div>
+<div class="section" id="plantilla-jsp">
+<h4>2.3.1.1. Plantilla JSP<a class="headerlink" href="#plantilla-jsp" title="Enlazar permanentemente con este título">¶</a></h4>
+<p>Adicionalmente se utilizará una <em>plantilla</em> JSP para realizar el
+formateo de página en código HTML. El archivo <em>listaProfesores.jsp</em> se
+encarga de esta tarea y residirá en el directorio <em>/tutorial2/root/</em></p>
+<div class="highlight-python"><div class="highlight"><pre>&lt;%@ page import=&quot;java.util.*&quot; %&gt;
+&lt;html&gt;
+  &lt;head&gt;
+        &lt;title&gt;Sistema Universitario&lt;/title&gt;
+        &lt;link rel=&quot;stylesheet&quot; href=&quot;style.css&quot;&gt;
+  &lt;/head&gt;
+  &lt;h1&gt;Sistema Universitario&lt;/h1&gt;
+  &lt;h2&gt;Listado de profesores&lt;/h2&gt;
+  &lt;% List profs = (List)request.getAttribute(&quot;profesores&quot;); %&gt;
+  &lt;table&gt;
+      &lt;thead&gt;
+        &lt;tr&gt;&lt;th&gt;Nombre&lt;/th&gt;&lt;th&gt;Título&lt;/th&gt;
+            &lt;th&gt;Area&lt;/th&gt;&lt;th&gt;Acciones&lt;/th&gt;&lt;/tr&gt;
+        &lt;/thead&gt;
+        &lt;tbody&gt;
+        &lt;% for(int i = 0, n = profs.size(); i &lt; n; i++) {
+                Map prof = (Map) profs.get(i); %&gt;
+                &lt;tr&gt;&lt;td&gt;&lt;%= prof.get(&quot;nombre&quot;) %&gt;&lt;/td&gt;
+                &lt;td&gt;&lt;%= prof.get(&quot;titulo&quot;) %&gt;&lt;/td&gt;
+                &lt;td&gt;&lt;%= prof.get(&quot;area&quot;) %&gt;&lt;/td&gt;
+                &lt;td&gt;
+        &lt;a href=&#39;/domain.DetalleProfesor?id=&lt;%= prof.get(&quot;id&quot;) %&gt;&#39;&gt;
+            &lt;input type=&quot;submit&quot; value=&quot;Detalle&quot;/&gt;&lt;/a&gt;
+        &lt;a href=&#39;/domain.EliminarProfesor?id=&lt;%= prof.get(&quot;id&quot;) %&gt;&#39;&gt;
+            &lt;input type=&quot;submit&quot; value=&quot;Eliminar&quot;/&gt;&lt;/a&gt;&lt;/td&gt;&lt;/tr&gt;
+        &lt;% } %&gt;
+        &lt;/tbody&gt;
+        &lt;tfoot&gt;
+          &lt;tr&gt;&lt;td&gt;&lt;a href=&#39;/domain.AgregarProfesor&#39;&gt;
+                &lt;input type=&quot;submit&quot; name=&quot;action&quot; value=&quot;Agregar&quot;/&gt;&lt;/a&gt;
+          &lt;/td&gt;&lt;td&gt;&lt;/td&gt;&lt;td&gt;&lt;/td&gt;&lt;td&gt;&lt;/td&gt;&lt;/tr&gt;
+        &lt;/tfoot&gt;
+   &lt;/table&gt;
+&lt;/html&gt;
+</pre></div>
+</div>
+<p>Nótese que la tabla generada cuenta con enlaces que invocarán la rutina
+que presenta el detalle del profesor (que se describe a continuación).</p>
+</div>
+<div class="section" id="hoja-de-estilo">
+<h4>2.3.1.2. Hoja de estilo<a class="headerlink" href="#hoja-de-estilo" title="Enlazar permanentemente con este título">¶</a></h4>
+<p>Con el fin de mejorar la apariencia de este ejemplo se ha desarrollado
+una pequeña hoja de estilo (css) que permite organizar mejor los datos
+de la tabla y el formulario. El archivo llamado <em>style.css</em> cuenta con
+el siguiente código:</p>
+<div class="highlight-python"><div class="highlight"><pre>body {
+  line-height: 1.6em;
+  font-family:&quot;Lucida Sans Unicode&quot;, &quot;Lucida Grande&quot;, Sans-Serif;
+  color: #009;
+}
+table {
+  font-size: 12px;
+  margin: 45px;
+  width: 480px;
+  text-align: left;
+  border-collapse: collapse;
+}
+th, tfoot td {
+  font-size: 13px;
+  font-weight: normal;
+  padding: 8px;
+  background: #b9c9fe;
+  border-top: 4px solid #aabcfe;
+  border-bottom: 1px solid #fff;
+  color: #039;
+  text-align: center;
+}
+td {
+  padding: 8px;
+  background: #e8edff;
+  border-bottom: 1px solid #fff;
+  color: #669;
+  border-top: 1px solid transparent;
+}
+tr:hover td {
+  background: #d0dafd;
+  color: #339;
+}
+input[type=&quot;text&quot;] {
+  width: 250px;
+}
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="la-rutina-de-detalle">
+<h3>2.3.2. La rutina de detalle<a class="headerlink" href="#la-rutina-de-detalle" title="Enlazar permanentemente con este título">¶</a></h3>
+<p>La rutina de detalle de profesor presentará otra tabla HTML con la
+información detallada del profesor. Este archivo es llamado
+<em>DetalleProfesor.java</em> y se ubica en el mismo directorio
+<em>/tutorial2/src/domain/</em>. Es importante observar la utilización del <em>id</em>
+del profesor para realizar la consulta a la pasarela de datos.</p>
+<div class="highlight-python"><div class="highlight"><pre>package domain;
+
+import display.FrontCommand;
+import data.ProfesorFinder;
+import data.ProfesorRowGateway;
+
+import java.util.Map;
+import java.util.HashMap;
+import java.io.IOException;
+import javax.servlet.ServletException;
+
+public class DetalleProfesor extends FrontCommand {
+
+  public void process()
+        throws ServletException, IOException {
+          ProfesorFinder profs =
+                (ProfesorFinder) context.getBean(&quot;profesorFinder&quot;);
+          String id = request.getParameter(&quot;id&quot;);
+        ProfesorRowGateway prof = profs.find(id);
+        Map params = new HashMap();
+        params.put(&quot;id&quot;,prof.getId()+&quot;&quot;);
+        params.put(&quot;cedula&quot;,prof.getCedula());
+        params.put(&quot;nombre&quot;,prof.getNombre());
+        params.put(&quot;titulo&quot;,prof.getTitulo());
+        params.put(&quot;area&quot;,prof.getArea());
+        params.put(&quot;telefono&quot;,prof.getTelefono());
+        request.setAttribute(&quot;profesor&quot;,params);
+        forward(&quot;/detalleProfesor.jsp&quot;);
+  }
+}
+</pre></div>
+</div>
+<div class="section" id="id1">
+<h4>2.3.2.1. Plantilla JSP<a class="headerlink" href="#id1" title="Enlazar permanentemente con este título">¶</a></h4>
+<p>La plantilla JSP que genera el código HTML se presenta a continuación.
+El código de la plantilla se define en un archivo llamado
+<em>detalleProfesor.jsp</em> que reside también en el directorio
+<em>/tutorial2/root/</em>.</p>
+<div class="highlight-python"><div class="highlight"><pre>&lt;%@ page import=&quot;java.util.Map&quot; %&gt;
+&lt;html&gt;
+  &lt;head&gt;
+        &lt;title&gt;Sistema Universitario&lt;/title&gt;
+        &lt;link rel=&quot;stylesheet&quot; href=&quot;style.css&quot;&gt;
+  &lt;/head&gt;
+  &lt;h1&gt;Sistema Universitario&lt;/h1&gt;
+  &lt;h2&gt;Detalle de Profesor&lt;/h2&gt;
+  &lt;% Map prof = (Map)request.getAttribute(&quot;profesor&quot;); %&gt;
+  &lt;form name=&quot;ActualizarProfesor&quot;
+        action=&quot;/domain.ActualizarProfesor&quot; method=&quot;get&quot;&gt;
+  &lt;input type=&quot;hidden&quot; name=&quot;id&quot; value=&quot;&lt;%= prof.get(&quot;id&quot;) %&gt;&quot;/&gt;
+  &lt;table style=&quot;width:400px;&quot;&gt;
+    &lt;thead&gt;
+      &lt;tr&gt;&lt;th&gt;&lt;/th&gt;&lt;th&gt;&lt;/th&gt;&lt;/tr&gt;
+    &lt;/thead&gt;
+    &lt;tbody&gt;
+        &lt;tr&gt;&lt;td&gt;Nombre:&lt;/td&gt;&lt;td&gt;&lt;input type=&quot;text&quot; name=&quot;nombre&quot;
+                value=&quot;&lt;%= prof.get(&quot;nombre&quot;) %&gt;&quot;/&gt;&lt;/td&gt;&lt;/tr&gt;
+        &lt;tr&gt;&lt;td&gt;Cédula:&lt;/td&gt;&lt;td&gt;&lt;input type=&quot;text&quot; name=&quot;cedula&quot;
+                value=&quot;&lt;%= prof.get(&quot;cedula&quot;) %&gt;&quot;/&gt;&lt;/td&gt;&lt;/tr&gt;
+        &lt;tr&gt;&lt;td&gt;Título:&lt;/td&gt;&lt;td&gt;&lt;input type=&quot;text&quot; name=&quot;titulo&quot;
+                value=&quot;&lt;%= prof.get(&quot;titulo&quot;) %&gt;&quot;/&gt;&lt;/td&gt;&lt;/tr&gt;
+        &lt;tr&gt;&lt;td&gt;Area:&lt;/td&gt;&lt;td&gt;&lt;input type=&quot;text&quot; name=&quot;area&quot;
+                value=&quot;&lt;%= prof.get(&quot;area&quot;) %&gt;&quot;/&gt;&lt;/td&gt;&lt;/tr&gt;
+        &lt;tr&gt;&lt;td&gt;Teléfono:&lt;/td&gt;&lt;td&gt;&lt;input type=&quot;text&quot; name=&quot;telefono&quot;
+                value=&quot;&lt;%= prof.get(&quot;telefono&quot;) %&gt;&quot;/&gt;&lt;/td&gt;&lt;/tr&gt;
+    &lt;/tbody&gt;
+    &lt;tfoot&gt;
+      &lt;tr&gt;&lt;td&gt;&lt;input type=&quot;submit&quot; value=&quot;Actualizar&quot; /&gt;&lt;/td&gt;&lt;td&gt;&lt;/td&gt;&lt;/tr&gt;
+    &lt;/tfoot&gt;
+   &lt;/tbody&gt;
+  &lt;/table&gt;
+  &lt;/form&gt;
+&lt;/html&gt;
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="actualizar-informacion">
+<h3>2.3.3. Actualizar información<a class="headerlink" href="#actualizar-informacion" title="Enlazar permanentemente con este título">¶</a></h3>
+<p>Se presenta también la rutina de transacción que permite actualizar los
+datos de un profesor. La lógica de esta rutina se ubica en el archivo
+<em>ActualizarProfesor.java</em> y reside en el directorio
+<em>/tutorial2/src/domain/</em>.</p>
+<div class="highlight-python"><div class="highlight"><pre>package domain;
+
+import display.FrontCommand;
+import data.ProfesorFinder;
+import data.ProfesorRowGateway;
+
+import java.util.Map;
+import java.util.HashMap;
+import java.io.IOException;
+import javax.servlet.ServletException;
+
+public class ActualizarProfesor extends FrontCommand {
+
+  public void process()
+        throws ServletException, IOException {
+          ProfesorFinder profs =
+                (ProfesorFinder) context.getBean(&quot;profesorFinder&quot;);
+          String id = request.getParameter(&quot;id&quot;);
+        ProfesorRowGateway prof = profs.find(id);
+        if (prof!=null) {
+          String cedula = request.getParameter(&quot;cedula&quot;);
+          if (cedula!=null) prof.setCedula(cedula);
+          String nombre = request.getParameter(&quot;nombre&quot;);
+          if (nombre!=null) prof.setNombre(nombre);
+          String titulo = request.getParameter(&quot;titulo&quot;);
+          if (titulo!=null) prof.setTitulo(titulo);
+          String area = request.getParameter(&quot;area&quot;);
+          if (area!=null) prof.setArea(area);
+          String telefono = request.getParameter(&quot;telefono&quot;);
+          if (telefono!=null) prof.setTelefono(telefono);
+          prof.update();
+        }
+        response.sendRedirect(&quot;domain.ListaProfesores&quot;);
+  }
+}
+</pre></div>
+</div>
+</div>
+<div class="section" id="compilando-la-capa-de-dominio">
+<h3>2.3.4. Compilando la capa de dominio<a class="headerlink" href="#compilando-la-capa-de-dominio" title="Enlazar permanentemente con este título">¶</a></h3>
+<p>Se puede realizar la compilación de estas clases de dominio en forma
+separada del resto del código de la aplicación. Para ello es necesario
+contar con las librerías del framework <em>Spring 3</em> (como se indicó antes)
+y con la librería <em>servlet-api.jar</em> ubicadas en el directorio
+<em>/tutorial2/root/WEB-INF/lib/</em>. La siguiente instrucción para ejecutar
+la compilación puede estar definida en un archivo
+<em>compileDomainLayer.bat</em> residente en el directorio <em>/tutorial2</em> (todo
+en una sola línea):</p>
+<div class="highlight-python"><div class="highlight"><pre>javac -cp &quot;root/WEB-INF/classes&quot;;&quot;root/WEB-INF/lib/*&quot;
+    -d root/WEB-INF/classes src/domain/ListaProfesores.java
+    src/domain/DetalleProfesor.java src/domain/ActualizarProfesor.java
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="configuracion-del-contexto">
+<h2>2.4. Configuración del contexto<a class="headerlink" href="#configuracion-del-contexto" title="Enlazar permanentemente con este título">¶</a></h2>
+<p>El framework <em>Spring</em> permite crear archivos xml que definen la
+configuración del contexto de ejecución de la aplicación. El archivo de
+configuración llamado <em>context.xml</em> se deberá ubicar en el directorio
+<em>/tutorial2/root/WEB-INF/</em> y contendrá la siguiente información.</p>
+<div class="highlight-python"><div class="highlight"><pre>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
+&lt;beans xmlns=&quot;http://www.springframework.org/schema/beans&quot;
+        xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;
+        xmlns:context=&quot;http://www.springframework.org/schema/context&quot;
+        xsi:schemaLocation=&quot;
+                http://www.springframework.org/schema/beans
+                http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+                http://www.springframework.org/schema/context
+                http://www.springframework.org/schema/context/spring-context-3.0.xsd&quot;&gt;
+        &lt;bean id=&quot;profesorFinder&quot; class=&quot;data.ProfesorFinder&quot;&gt;
+                &lt;property name=&quot;dataSource&quot; ref=&quot;dataSource&quot;/&gt;
+        &lt;/bean&gt;
+        &lt;bean id=&quot;dataSource&quot; class=&quot;org.apache.commons.dbcp.BasicDataSource&quot;
+              destroy-method=&quot;close&quot;&gt;
+                &lt;property name=&quot;driverClassName&quot; value=&quot;${jdbc.driverClassName}&quot;/&gt;
+                &lt;property name=&quot;url&quot; value=&quot;${jdbc.url}&quot;/&gt;
+                &lt;property name=&quot;username&quot; value=&quot;${jdbc.username}&quot;/&gt;
+                &lt;property name=&quot;password&quot; value=&quot;${jdbc.password}&quot;/&gt;
+        &lt;/bean&gt;
+        &lt;context:property-placeholder location=&quot;WEB-INF/jdbc.properties&quot;/&gt;
+&lt;/beans&gt;
+</pre></div>
+</div>
+<p>Los aspectos importantes que se pueden observar en este archivo son la
+declaración de una instancia (singleton) al constructor de pasarelas y
+la declaración de la fuente de datos <em>JDBC</em>.</p>
+<p>Precisamente para configurar la fuente de datos se utilizará un archivo
+de propiedades llamado <em>jdbc.properties</em> y que residirá en el directorio
+<em>/tutorial2/root/WEB-INF</em>. Su contenido es simplemente el siguiente:</p>
+<div class="highlight-python"><div class="highlight"><pre>jdbc.driverClassName=org.sqlite.JDBC
+jdbc.url=jdbc:sqlite:database/universidad.db
+jdbc.username=sa
+jdbc.password=root
+</pre></div>
+</div>
+<p>Sin embargo, note que una base de datos <em>SQLite</em> no requiere indicar el
+usuario y su clave.</p>
+</div>
+<div class="section" id="configuracion-del-servidor">
+<h2>2.5. Configuración del servidor<a class="headerlink" href="#configuracion-del-servidor" title="Enlazar permanentemente con este título">¶</a></h2>
+<p>El servidor de servlets requiere del archivo de configuración de la
+aplicación para conocer en donde se ubica la clase a ejecutar. Además
+este archivo permite indicar la ubicación y nombre del archivo de
+contexto. Estos archivos de configuración del servlet siempre se llaman
+<em>web.xml</em> y deben residir en el directorio <em>/tutorial2/root/WEB-INF/</em>.
+Para este caso su contenido sería el siguiente:</p>
+<div class="highlight-python"><div class="highlight"><pre>&lt;?xml version=&quot;1.0&quot; encoding=&quot;ISO-8859-1&quot;?&gt;
+&lt;web-app xmlns=&quot;http://java.sun.com/xml/ns/j2ee&quot;
+   xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;
+   xsi:schemaLocation=&quot;http://java.sun.com/xml/ns/j2ee
+    http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd&quot;
+   version=&quot;2.4&quot;&gt;
+ &lt;display-name&gt;Sistema Universitario&lt;/display-name&gt;
+ &lt;description&gt;Ejemplo de Rutinas de Transaccion&lt;/description&gt;
+ &lt;context-param&gt;
+        &lt;param-name&gt;contextConfigLocation&lt;/param-name&gt;
+        &lt;param-value&gt;/WEB-INF/context.xml&lt;/param-value&gt;
+ &lt;/context-param&gt;
+ &lt;listener&gt;
+        &lt;listener-class&gt;
+          org.springframework.web.context.ContextLoaderListener
+        &lt;/listener-class&gt;
+ &lt;/listener&gt;
+ &lt;filter&gt;
+        &lt;filter-name&gt;UrlRewriteFilter&lt;/filter-name&gt;
+        &lt;filter-class&gt;org.tuckey.web.filters.urlrewrite.UrlRewriteFilter&lt;/filter-class&gt;
+ &lt;/filter&gt;
+ &lt;filter-mapping&gt;
+        &lt;filter-name&gt;UrlRewriteFilter&lt;/filter-name&gt;
+        &lt;url-pattern&gt;/*&lt;/url-pattern&gt;
+ &lt;/filter-mapping&gt;
+ &lt;servlet&gt;
+   &lt;servlet-name&gt;FrontController&lt;/servlet-name&gt;
+   &lt;servlet-class&gt;display.FrontController&lt;/servlet-class&gt;
+ &lt;/servlet&gt;
+ &lt;servlet-mapping&gt;
+   &lt;servlet-name&gt;FrontController&lt;/servlet-name&gt;
+   &lt;url-pattern&gt;/frontController&lt;/url-pattern&gt;
+ &lt;/servlet-mapping&gt;
+&lt;/web-app&gt;
+</pre></div>
+</div>
+<p>Como se puede observar en este archivo, se utilizará una librería
+especial que permite redireccionar las solicitudes que se hacen al
+servicio con base en su URL. Para esto es necesario contar con un
+archivo <em>urlrewrite.xml</em> que se muestra a continuación y que residirá en
+el mismo directorio <em>/tutorial2/root/WEB-INF/</em></p>
+<div class="highlight-python"><div class="highlight"><pre>&lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot;?&gt;
+&lt;!DOCTYPE urlrewrite PUBLIC &quot;-//tuckey.org//DTD UrlRewrite 2.6//EN&quot;
+        &quot;http://tuckey.org/res/dtds/urlrewrite2.6.dtd&quot;&gt;
+&lt;urlrewrite&gt;
+  &lt;rule&gt;
+    &lt;from&gt;/*.css&lt;/from&gt;
+    &lt;to&gt;.css&lt;/to&gt;
+  &lt;/rule&gt;
+  &lt;rule&gt;
+    &lt;from&gt;/(.*)$&lt;/from&gt;
+    &lt;to&gt;/frontController&lt;/to&gt;
+    &lt;set name=&quot;command&quot;&gt;$1&lt;/set&gt;
+  &lt;/rule&gt;
+&lt;/urlrewrite&gt;
+</pre></div>
+</div>
+</div>
+<div class="section" id="ejecucion-del-tutorial">
+<h2>2.6. Ejecución del tutorial<a class="headerlink" href="#ejecucion-del-tutorial" title="Enlazar permanentemente con este título">¶</a></h2>
+<p>Este ejemplo se puede ejecutar bajo cualquier contenedor de Servlet. Por
+ejemplo, para realizar la ejecución de pruebas se puede utilizar un
+producto como el <em>Winstone Servlet Container</em> que permite ejecutar
+servlets de forma muy sencilla. Se debe descargar el programa
+<em>winstone-0.9.10.jar</em> y copiarlo en el directorio <em>/tutorial2/</em>. Sin
+embargo, para lograr que <em>Winstone</em> ejecute plantillas <em>JSP</em> es
+necesario descargar algunas librerías adicionales que deben ser copiadas
+en el directorio <em>/tutorial2/lib</em>:</p>
+<ul class="simple">
+<li>el-api-6.0.18.jar</li>
+<li>jasper-6.0.18.jar</li>
+<li>jasper-el-6.0.18.jar</li>
+<li>jasper-jdt-6.0.18.jar</li>
+<li>jsp-api-6.0.18.jar</li>
+<li>jstl-api-1.2.jar</li>
+<li>jstl-impl-1.2.jar</li>
+<li>jtds-1.2.4.jar</li>
+<li>juli-6.0.18.jar</li>
+<li>servlet-api-2.5.jar</li>
+<li>servlet-api.jar</li>
+<li>urlrewrite-3.2.0.jar</li>
+</ul>
+<p>Para ejecutar el servidor de servlets se puede crear un archivo de
+instrucciones, llamado <em>run.bat</em>, similar al siguiente en el directorio
+<em>/tutorial2/</em> (todo en una sola línea):</p>
+<div class="highlight-python"><div class="highlight"><pre>java -jar winstone-0.9.10.jar --httpPort=8089 --commonLibFolder=lib
+      --useJasper=true --webroot=root
+</pre></div>
+</div>
+<p>Luego se puede acceder a la aplicación desde cualquier visualizador web
+y apuntando a la dirección <a class="reference external" href="http://localhost:8089/domain.ListaProfesores">http://localhost:8089/domain.ListaProfesores</a></p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Tabla de Contenidos</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">2. Rutinas de Transacción</a><ul>
+<li><a class="reference internal" href="#capa-de-acceso-a-datos">2.1. Capa de acceso a datos</a><ul>
+<li><a class="reference internal" href="#base-de-datos">2.1.1. Base de datos</a></li>
+<li><a class="reference internal" href="#pasarela-a-fila-de-datos">2.1.2. Pasarela a fila de datos</a></li>
+<li><a class="reference internal" href="#generacion-de-objetos-de-pasarelas">2.1.3. Generación de objetos de pasarelas</a></li>
+<li><a class="reference internal" href="#compilando-la-capa-de-datos">2.1.4. Compilando la capa de datos</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#capa-de-presentacion">2.2. Capa de presentación</a><ul>
+<li><a class="reference internal" href="#la-clase-para-los-comandos">2.2.1. La clase para los comandos</a></li>
+<li><a class="reference internal" href="#comandos-desconocidos">2.2.2. Comandos desconocidos</a></li>
+<li><a class="reference internal" href="#compilando-la-capa-de-presentacion">2.2.3. Compilando la capa de presentación</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#la-capa-de-logica-del-dominio">2.3. La capa de lógica del dominio</a><ul>
+<li><a class="reference internal" href="#la-rutina-de-listado">2.3.1. La rutina de listado</a><ul>
+<li><a class="reference internal" href="#plantilla-jsp">2.3.1.1. Plantilla JSP</a></li>
+<li><a class="reference internal" href="#hoja-de-estilo">2.3.1.2. Hoja de estilo</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#la-rutina-de-detalle">2.3.2. La rutina de detalle</a><ul>
+<li><a class="reference internal" href="#id1">2.3.2.1. Plantilla JSP</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#actualizar-informacion">2.3.3. Actualizar información</a></li>
+<li><a class="reference internal" href="#compilando-la-capa-de-dominio">2.3.4. Compilando la capa de dominio</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#configuracion-del-contexto">2.4. Configuración del contexto</a></li>
+<li><a class="reference internal" href="#configuracion-del-servidor">2.5. Configuración del servidor</a></li>
+<li><a class="reference internal" href="#ejecucion-del-tutorial">2.6. Ejecución del tutorial</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Tema anterior</h4>
+  <p class="topless"><a href="tutorial1.md.html"
+                        title="capítulo anterior">1. Uso de JSP</a></p>
+  <h4>Próximo tema</h4>
+  <p class="topless"><a href="tutorial3.md.html"
+                        title="próximo capítulo">3. Módulo de Tabla</a></p>
+<div id="searchbox" style="display: none">
+  <h3>Búsqueda rápida</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Ir a" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Introduzca los términos de búsqueda o un nombre de módulo, clase o función.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navegación</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="tutorial3.md.html" title="3. Módulo de Tabla"
+             >siguiente</a></li>
+        <li class="right" >
+          <a href="tutorial1.md.html" title="1. Uso de JSP"
+             >anterior</a> |</li>
+        <li><a href="index.html">Desarrollo con Java</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2014, Armando Arce.
+      Creado con <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.1.
+    </div>
+  </body>
+</html>
