@@ -9,6 +9,7 @@ Contenidos
 ==========
 
 .. toctree::
+   :maxdepth: 1
    :numbered:
 
    tutorial1.md.rst
