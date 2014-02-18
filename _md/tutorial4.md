@@ -630,7 +630,7 @@ el siguiente:
      </servlet-mapping>
     </web-app>
 
-# Ejecución del tutorial
+## Ejecución del tutorial
 
 Este ejemplo se puede ejecutar bajo cualquier contenedor de Servlet. Por
 ejemplo, para realizar la ejecución de pruebas se puede utilizar un
