@@ -1,7 +1,7 @@
 Desarrollo de Aplicaciones con Java
 ===================================
 
-El objetivo de este sitio es presentar una serie de tutoriales básicos sobre el desarrollo de aplicaciones empresariales utilizando el ambiente Java. 
+El objetivo de este sitio es presentar un conjunto de tutoriales básicos sobre el desarrollo de aplicaciones empresariales utilizando el ambiente Java. 
 
 Los tutoriales disponibles hasta el momento son los siguientes:
 
