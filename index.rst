@@ -19,3 +19,4 @@ Contenidos
    tutorial5.md.rst
    tutorial6.md.rst
    tutorial7.md.rst
+   tutorial8.md.rst
